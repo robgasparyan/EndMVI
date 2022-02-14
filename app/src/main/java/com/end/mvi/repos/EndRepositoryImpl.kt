@@ -23,9 +23,9 @@ class EndRepositoryImpl(
             emit(
                 SuccessState(
                     ClothesShoesModel(
-                        clothesFirstResponse.product_count,
-                        (clothesFirstResponse.products + clothesSecondResponse.products).filter { it.id == "1" },
-                        clothesFirstResponse.title
+                        product_count = clothesFirstResponse.product_count + clothesSecondResponse.product_count,
+                        products = (clothesFirstResponse.products + clothesSecondResponse.products).sortedBy { it.id == "1" },
+                        title = clothesFirstResponse.title
                     )
                 )
             )

@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">EndMviExample</string>
+    <string name="clothes_preview_image">Clothes preview image</string>
+    <string name="no_internet_connection">No Internet Connection!</string>
+    <string name="items_count">%1$S Items count</string>
 </resources>

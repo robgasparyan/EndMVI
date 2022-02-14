@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 data class ClothesShoesModelDTO(
-    val product_count: Int? = 0,
+    val product_count: Int = 0,
     val products: List<Product> = emptyList(),
     val title: String? = ""
 ) {

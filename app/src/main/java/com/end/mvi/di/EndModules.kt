@@ -19,7 +19,14 @@ import org.koin.dsl.module
 import org.koin.experimental.builder.factory
 import org.koin.experimental.builder.factoryBy
 import retrofit2.Retrofit
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSession
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 @OptIn(ExperimentalSerializationApi::class)
 val networkModule: Module = module {
@@ -36,8 +43,24 @@ val networkModule: Module = module {
         } else {
             logging.level = HttpLoggingInterceptor.Level.BASIC
         }
+        val trustManager: X509TrustManager = object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun checkServerTrusted(chain: Array<X509Certificate>, authType: String) {}
+            override fun getAcceptedIssuers(): Array<X509Certificate> {
+                return arrayOf()
+            }
+        }
+        val trustManagers = arrayOf<TrustManager>(trustManager)
+        try {
+            val sslContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustManagers, SecureRandom())
+            val sslSocketFactory = sslContext.socketFactory
+            builder.sslSocketFactory(sslSocketFactory, trustManager)
+            builder.hostnameVerifier(HostnameVerifier { hostname: String?, session: SSLSession? -> true })
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         builder.addInterceptor(logging)
-//        builder.addInterceptor(networkAvailabilityInterceptor)
             .connectTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(
                 1,

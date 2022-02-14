@@ -3,8 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/ic_left_arrow.xml" value="0.1895" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.1947463768115942" />
         <entry key="app/src/main/res/layout/end_clothes_fragment.xml" value="0.1947463768115942" />
+        <entry key="app/src/main/res/layout/end_item_layout.xml" value="0.21422101449275363" />
+        <entry key="app/src/main/res/layout/toolbar.xml" value="0.21422101449275363" />
       </map>
     </option>
   </component>
