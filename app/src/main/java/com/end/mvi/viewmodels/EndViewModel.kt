@@ -1,7 +1,6 @@
 package com.end.mvi.viewmodels
 
 import androidx.core.os.bundleOf
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.end.mvi.models.ClothesShoesModel
 import com.end.mvi.repos.EndRepository
@@ -12,7 +11,7 @@ import kotlinx.coroutines.flow.collect
 
 class EndViewModel(
     private val endRepository: EndRepository
-) : ViewModel() {
+) : BaseViewModel() {
 
     val container = Container<EndUIState<ClothesShoesModel>, NavigationToNextScreen>(
         viewModelScope,
@@ -28,8 +27,7 @@ class EndViewModel(
     }
 
     fun onRVItemClicked(clothesShoesProduct: ClothesShoesModel.Product) = container.intent {
-        container.postSideEffect(event = NavigationToNextScreen.NavigationToDetailsScreen(bundleOf("navId" to "1")))
+        container.postSideEffect(event = NavigationToNextScreen.NavigationToDetailsScreen(bundleOf("navId" to clothesShoesProduct.id)))
     }
-
 
 }

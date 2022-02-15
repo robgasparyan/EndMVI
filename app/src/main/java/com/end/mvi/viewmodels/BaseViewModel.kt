@@ -9,18 +9,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 
-class BaseViewModel : ViewModel() {
+open class BaseViewModel : ViewModel() {
 }
 
-class Container<STATE, SIDEEFFECT>(
+class Container<STATE, SIDE_EFFECT>(
     private val scope: CoroutineScope,
     private val initialState: STATE
 ) {
     private val _stateFlow = MutableStateFlow(initialState)
     val state: StateFlow<STATE> = _stateFlow
-    private val _sideEffect = Channel<SIDEEFFECT>(BUFFERED)
-    val sideEffect: Flow<SIDEEFFECT> = _sideEffect.receiveAsFlow()
-    fun intent(transform: suspend Container<STATE, SIDEEFFECT>.() -> Unit) =
+    private val _sideEffect = Channel<SIDE_EFFECT>(BUFFERED)
+    val sideEffect: Flow<SIDE_EFFECT> = _sideEffect.receiveAsFlow()
+    fun intent(transform: suspend Container<STATE, SIDE_EFFECT>.() -> Unit) =
         scope.launch(SINGLE_THREAD) {
             this@Container.transform()
         }
@@ -30,7 +30,7 @@ class Container<STATE, SIDEEFFECT>(
             _stateFlow.value = _stateFlow.value.reducer()
         }
 
-    suspend fun postSideEffect(event: SIDEEFFECT) =
+    suspend fun postSideEffect(event: SIDE_EFFECT) =
         _sideEffect.send(event)
 
     companion object {
