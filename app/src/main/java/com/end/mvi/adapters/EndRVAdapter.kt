@@ -13,6 +13,7 @@ import com.end.mvi.models.ClothesShoesModel
 
 class EndRVAdapter : RecyclerView.Adapter<EndRVAdapter.ViewHolder>() {
     private val clothesItems = arrayListOf<ClothesShoesModel.Product>()
+    var onItemClicked: ((ClothesShoesModel.Product) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         ViewHolder(
@@ -32,6 +33,9 @@ class EndRVAdapter : RecyclerView.Adapter<EndRVAdapter.ViewHolder>() {
         with(holder) {
             endClothesImageView.load(item.image)
             endClothesTextView.text = item.name
+            itemView.setOnClickListener {
+                onItemClicked?.invoke(item)
+            }
         }
     }
 

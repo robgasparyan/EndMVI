@@ -1,27 +1,35 @@
 package com.end.mvi.viewmodels
 
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.end.mvi.models.ClothesShoesModel
 import com.end.mvi.repos.EndRepository
 import com.end.mvi.utils.EndUIState
+import com.end.mvi.utils.NavigationToNextScreen
 import com.end.mvi.utils.map
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 class EndViewModel(
     private val endRepository: EndRepository
 ) : ViewModel() {
 
-    private val _endData = MutableStateFlow<EndUIState<ClothesShoesModel>>(EndUIState.Loading)
-    val endData: StateFlow<EndUIState<ClothesShoesModel>> = _endData
+    val container = Container<EndUIState<ClothesShoesModel>, NavigationToNextScreen>(
+        viewModelScope,
+        EndUIState.Loading
+    )
 
-    fun getClothes() = viewModelScope.launch {
+    fun getClothes() = container.intent {
         endRepository.getClothesAndShoes().collect {
-            _endData.value = it.map()
+            container.reduce {
+                it.map()
+            }
         }
     }
+
+    fun onRVItemClicked(clothesShoesProduct: ClothesShoesModel.Product) = container.intent {
+        container.postSideEffect(event = NavigationToNextScreen.NavigationToDetailsScreen(bundleOf("navId" to "1")))
+    }
+
 
 }

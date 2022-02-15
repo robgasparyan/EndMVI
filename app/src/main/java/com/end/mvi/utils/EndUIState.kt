@@ -1,5 +1,7 @@
 package com.end.mvi.utils
 
+import android.os.Bundle
+
 sealed class EndUIState<out T : Any> {
     class Data<out T : Any>(val data: T) : EndUIState<T>()
     sealed class Fail<out T : Any> : EndUIState<T>() {
@@ -16,4 +18,8 @@ fun <T : Any> EndResult<T>.map(): EndUIState<T> {
         is ErrorState -> EndUIState.Fail.Exception(this.error)
         is LoadingState -> EndUIState.Loading
     }
+}
+
+sealed class NavigationToNextScreen {
+    class NavigationToDetailsScreen(val bundle: Bundle?) : NavigationToNextScreen()
 }
