@@ -94,7 +94,7 @@ val networkModule: Module = module {
 }
 
 val viewModels: Module = module {
-    viewModel<EndViewModel>()
+//    viewModel<EndViewModel>()
 }
 
 val repositories: Module = module {

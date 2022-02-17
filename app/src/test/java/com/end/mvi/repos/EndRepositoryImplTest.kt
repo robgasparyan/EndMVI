@@ -28,7 +28,6 @@ class EndRepositoryImplTest {
     @get:Rule
     val coroutinesTestRule = CoroutineTestRule()
 
-
     @Before
     fun setUp() {
         MockKAnnotations.init(this)

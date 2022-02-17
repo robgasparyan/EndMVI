@@ -1,33 +1,38 @@
 package com.end.mvi.viewmodels
 
-import androidx.core.os.bundleOf
-import androidx.lifecycle.viewModelScope
+import com.airbnb.mvrx.MavericksViewModel
 import com.end.mvi.models.ClothesShoesModel
 import com.end.mvi.repos.EndRepository
-import com.end.mvi.utils.EndUIState
-import com.end.mvi.utils.NavigationToNextScreen
-import com.end.mvi.utils.map
+import com.end.mvi.state.EndMainState
+import com.end.mvi.utils.ErrorState
+import com.end.mvi.utils.LoadingState
+import com.end.mvi.utils.SuccessState
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 class EndViewModel(
     private val endRepository: EndRepository
-) : BaseViewModel() {
+) : MavericksViewModel<EndMainState<ClothesShoesModel>>(EndMainState.Loading) {
 
-    val container = Container<EndUIState<ClothesShoesModel>, NavigationToNextScreen>(
-        viewModelScope,
-        EndUIState.Loading
-    )
 
-    fun getClothes() = container.intent {
+    fun getClothes() = viewModelScope.launch {
         endRepository.getClothesAndShoes().collect {
-            container.reduce {
-                it.map()
+            when (it) {
+                is LoadingState -> {
+                    setState { EndMainState.Loading }
+                }
+                is ErrorState -> {
+                    setState { EndMainState.Exception(it.error) }
+                }
+                is SuccessState -> {
+                    setState { EndMainState.Data(it.data) }
+                }
             }
         }
     }
 
-    fun onRVItemClicked(clothesShoesProduct: ClothesShoesModel.Product) = container.intent {
-        container.postSideEffect(event = NavigationToNextScreen.NavigationToDetailsScreen(bundleOf("navId" to clothesShoesProduct.id)))
-    }
+//    fun onRVItemClicked(clothesShoesProduct: ClothesShoesModel.Product) = container.intent {
+//        container.postSideEffect(event = NavigationToNextScreen.NavigationToDetailsScreen(bundleOf("navId" to clothesShoesProduct.id)))
+//    }
 
 }

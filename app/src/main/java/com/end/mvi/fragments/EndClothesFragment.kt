@@ -1,25 +1,24 @@
 package com.end.mvi.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
+import com.airbnb.mvrx.MavericksView
+import com.airbnb.mvrx.fragmentViewModel
+import com.airbnb.mvrx.withState
 import com.end.mvi.R
 import com.end.mvi.adapters.EndRVAdapter
 import com.end.mvi.databinding.EndClothesFragmentBinding
-import com.end.mvi.utils.EndUIState
-import com.end.mvi.utils.NavigationToNextScreen
+import com.end.mvi.state.EndMainState
 import com.end.mvi.utils.binding.viewBinding
-import com.end.mvi.utils.collectWhileStarted
 import com.end.mvi.utils.toast
 import com.end.mvi.viewmodels.EndViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class EndClothesFragment : Fragment(R.layout.end_clothes_fragment) {
+class EndClothesFragment : Fragment(R.layout.end_clothes_fragment), MavericksView {
 
-    private val endViewModel: EndViewModel by viewModel()
+    private val endViewModel: EndViewModel by fragmentViewModel()
     private val binding by viewBinding(EndClothesFragmentBinding::bind)
     private val endRVAdapter: EndRVAdapter by lazy {
         EndRVAdapter()
@@ -28,24 +27,23 @@ class EndClothesFragment : Fragment(R.layout.end_clothes_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupView()
-        setupObservers()
         setupClicks()
         endViewModel.getClothes()
     }
 
     private fun setupClicks() {
         endRVAdapter.onItemClicked = {
-            endViewModel.onRVItemClicked(it)
+
         }
     }
 
-    private fun setupObservers() {
-        endViewModel.container.state.collectWhileStarted(viewLifecycleOwner) {
+    override fun invalidate() {
+        withState(endViewModel) {
             when (it) {
-                is EndUIState.Loading -> {
+                is EndMainState.Loading -> {
                     binding.contentLoaderProgressBar.show()
                 }
-                is EndUIState.Data -> {
+                is EndMainState.Data -> {
                     with(binding) {
                         toolbarLayout.toolbarTitleTextView.text = it.data.title
                         binding.contentLoaderProgressBar.hide()
@@ -57,19 +55,13 @@ class EndClothesFragment : Fragment(R.layout.end_clothes_fragment) {
                     }
                     endRVAdapter.setItems(it.data.products)
                 }
-                is EndUIState.Fail.Exception -> {
+                is EndMainState.Exception -> {
                     binding.contentLoaderProgressBar.hide()
                     requireContext().toast(it.massage)
                 }
-                is EndUIState.Fail.NoInternet -> {
-                    binding.contentLoaderProgressBar.hide()
-                    requireContext().toast(getString(R.string.no_internet_connection))
+                is EndMainState.Click -> {
+
                 }
-            }
-        }
-        endViewModel.container.sideEffect.collectWhileStarted(viewLifecycleOwner) {
-            if (it is NavigationToNextScreen.NavigationToDetailsScreen) {
-                it.bundle?.get("navId")?.let { it1 -> Log.i("EndLoggerTag", it1.toString()) }
             }
         }
     }
