@@ -1,15 +1,16 @@
 package com.end.mvi.api
 
+import com.end.mvi.models.ClothesShoesModel
 import com.end.mvi.models.ClothesShoesModelDTO
-import com.end.mvi.utils.EndResult
+import io.reactivex.rxjava3.core.Observable
 import retrofit2.http.GET
 
 interface EndService {
 
     @GET("media/catalog/android_test_example.json")
-    suspend fun getDataFromSource1(): ClothesShoesModelDTO
+    fun getDataFromSource1(): Observable<ClothesShoesModelDTO>
 
     @GET("media/catalog/example.json")
-    suspend fun getDataFromSource2(): ClothesShoesModelDTO
+    fun getDataFromSource2(): Observable<ClothesShoesModelDTO>
 
 }

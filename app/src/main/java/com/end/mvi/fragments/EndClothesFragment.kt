@@ -1,7 +1,6 @@
 package com.end.mvi.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -9,17 +8,20 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.end.mvi.R
 import com.end.mvi.adapters.EndRVAdapter
 import com.end.mvi.databinding.EndClothesFragmentBinding
-import com.end.mvi.utils.EndUIState
-import com.end.mvi.utils.NavigationToNextScreen
+import com.end.mvi.models.ClothesShoesModel
+import com.end.mvi.utils.EndAction
+import com.end.mvi.utils.EndMainPageUIState
 import com.end.mvi.utils.binding.viewBinding
-import com.end.mvi.utils.collectWhileStarted
 import com.end.mvi.utils.toast
-import com.end.mvi.viewmodels.EndViewModel
+import com.end.mvi.viewmodels.EndIntention
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class EndClothesFragment : Fragment(R.layout.end_clothes_fragment) {
+class EndClothesFragment : BaseEndFragment(R.layout.end_clothes_fragment) {
 
-    private val endViewModel: EndViewModel by viewModel()
+    private val endIntention: EndIntention by viewModel()
     private val binding by viewBinding(EndClothesFragmentBinding::bind)
     private val endRVAdapter: EndRVAdapter by lazy {
         EndRVAdapter()
@@ -29,49 +31,38 @@ class EndClothesFragment : Fragment(R.layout.end_clothes_fragment) {
         super.onViewCreated(view, savedInstanceState)
         setupView()
         setupObservers()
-        setupClicks()
-        endViewModel.getClothes()
-    }
-
-    private fun setupClicks() {
-        endRVAdapter.onItemClicked = {
-            endViewModel.onRVItemClicked(it)
-        }
     }
 
     private fun setupObservers() {
-        endViewModel.container.state.collectWhileStarted(viewLifecycleOwner) {
-            when (it) {
-                is EndUIState.Loading -> {
-                    binding.contentLoaderProgressBar.show()
-                }
-                is EndUIState.Data -> {
-                    with(binding) {
-                        toolbarLayout.toolbarTitleTextView.text = it.data.title
-                        binding.contentLoaderProgressBar.hide()
-                        binding.itemsCountTextView.text =
-                            requireContext().getString(
-                                R.string.items_count,
-                                it.data.product_count.toString()
-                            )
+        disposablesOnDestroy.add(endIntention.endAction(EndAction.LoadEndClothesItems)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe {
+                when (it) {
+                    is EndMainPageUIState.SucceedEndClothes -> {
+                        val response = it.data as ClothesShoesModel
+                        with(binding) {
+                            toolbarLayout.toolbarTitleTextView.text = response.title
+                            binding.contentLoaderProgressBar.hide()
+                            binding.itemsCountTextView.text =
+                                requireContext().getString(
+                                    R.string.items_count,
+                                    response.product_count.toString()
+                                )
+                        }
+                        endRVAdapter.setItems(response.products)
                     }
-                    endRVAdapter.setItems(it.data.products)
+                    is EndMainPageUIState.Loading -> {
+                        binding.contentLoaderProgressBar.show()
+                    }
+                    is EndMainPageUIState.Error -> {
+                        binding.contentLoaderProgressBar.hide()
+                        requireContext().toast(it.massage)
+                    }
                 }
-                is EndUIState.Fail.Exception -> {
-                    binding.contentLoaderProgressBar.hide()
-                    requireContext().toast(it.massage)
-                }
-                is EndUIState.Fail.NoInternet -> {
-                    binding.contentLoaderProgressBar.hide()
-                    requireContext().toast(getString(R.string.no_internet_connection))
-                }
+
             }
-        }
-        endViewModel.container.sideEffect.collectWhileStarted(viewLifecycleOwner) {
-            if (it is NavigationToNextScreen.NavigationToDetailsScreen) {
-                it.bundle?.get("navId")?.let { it1 -> Log.i("EndLoggerTag", it1.toString()) }
-            }
-        }
+        )
     }
 
     private fun setupView() {

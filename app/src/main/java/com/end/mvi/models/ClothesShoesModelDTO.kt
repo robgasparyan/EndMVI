@@ -19,3 +19,11 @@ data class ClothesShoesModelDTO(
         val price: String
     )
 }
+
+operator fun ClothesShoesModelDTO.plus(clothesShoesModelDTO: ClothesShoesModelDTO): ClothesShoesModelDTO {
+    return ClothesShoesModelDTO(
+        product_count = this.product_count + clothesShoesModelDTO.product_count,
+        products = this.products + clothesShoesModelDTO.products,
+        title = this.title
+    )
+}

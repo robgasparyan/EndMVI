@@ -1,6 +1,5 @@
 package com.end.mvi.viewmodels
 
-import app.cash.turbine.test
 import com.end.mvi.models.ClothesShoesModel
 import com.end.mvi.repos.EndRepository
 import com.end.mvi.rules.CoroutineTestRule
@@ -39,7 +38,7 @@ class EndViewModelTest {
         coEvery { endRepository.getClothesAndShoes() } returns flow {
             emit(SuccessState(dummyClothesShoesModel))
         }
-        val viewModel = EndViewModel(endRepository)
+        val viewModel = EndIntention(endRepository)
         viewModel.container.state.test {
             val item = awaitItem()
             if (item is EndUIState.Data) {
@@ -60,7 +59,7 @@ class EndViewModelTest {
         coEvery { endRepository.getClothesAndShoes() } returns flow {
             emit(SuccessState(dummyClothesShoesModel))
         }
-        val viewModel = EndViewModel(endRepository)
+        val viewModel = EndIntention(endRepository)
         viewModel.container.state.test {
             val item = awaitItem()
             if (item is EndUIState.Data) {

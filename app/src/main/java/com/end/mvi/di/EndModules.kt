@@ -6,7 +6,7 @@ import com.end.mvi.mappers.EndMapper
 import com.end.mvi.repos.EndRepository
 import com.end.mvi.repos.EndRepositoryImpl
 import com.end.mvi.utils.serializerModule
-import com.end.mvi.viewmodels.EndViewModel
+import com.end.mvi.viewmodels.EndIntention
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
@@ -19,14 +19,11 @@ import org.koin.dsl.module
 import org.koin.experimental.builder.factory
 import org.koin.experimental.builder.factoryBy
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSession
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
+import javax.net.ssl.*
 
 @OptIn(ExperimentalSerializationApi::class)
 val networkModule: Module = module {
@@ -75,6 +72,7 @@ val networkModule: Module = module {
         Retrofit.Builder()
             .addConverterFactory(get())
             .baseUrl(BuildConfig.END_API_BASEURL)
+            .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
             .client(get())
             .build()
     }
@@ -94,7 +92,7 @@ val networkModule: Module = module {
 }
 
 val viewModels: Module = module {
-    viewModel<EndViewModel>()
+    viewModel<EndIntention>()
 }
 
 val repositories: Module = module {
