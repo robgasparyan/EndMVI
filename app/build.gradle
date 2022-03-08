@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-
+    implementation project(path: ':nond')
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.5.0'
@@ -67,8 +67,8 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navComponent"
     implementation "androidx.navigation:navigation-ui-ktx:$navComponent"
 
-    // coil
-    implementation "io.coil-kt:coil:1.1.1"
+//    // coil
+//    implementation "io.coil-kt:coil:1.1.1"
 
     // Koin
     def koin_version = "2.2.2"
